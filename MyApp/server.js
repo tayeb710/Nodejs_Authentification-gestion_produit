@@ -1,6 +1,7 @@
 var express = require('express');
 var logger = require('morgan');
 var users = require('./routes/users');
+var products =require('./routes/products');
 var bodyParser = require('body-parser');
 var mongoose = require('./configuration/database'); 
 var path = require('path');
@@ -24,13 +25,17 @@ res.json({"Hello tayeb" : "welcome to my application"});
 
 // public route
 app.use('/users', users);
+// private route
+app.use('/products', validateUser, products);
+app.get('/favicon.ico', function(req, res) {
+    res.sendStatus(204);
+});
 
 function validateUser(req, res, next) {
   jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), function(err, decoded) {
     if (err) {
       res.json({status:"error", message: err.message, data:null});
     }else{
-      // add user id to request
       req.body.userId = decoded.id;
       next();
     }
